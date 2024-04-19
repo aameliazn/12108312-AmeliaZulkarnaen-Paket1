@@ -104,55 +104,56 @@
                             <td>{{ $category->name }}</td>
                         @endforeach
 
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ $book->author }}</td>
+                        <td>{{ $book->publisher }}</td>
+                        <td>{{ $book->pub_year }}</td>
                         <td>
                             <div class="d-flex gap-2 justify-content-center">
-                                {{-- untuk role yang bukan user --}}
-                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#editBook- bookId ">Edit</button>
-                                <form action="" method="post">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-dark">Delete</button>
-                                </form>
-                                {{-- untuk role lain --}}
-                                <form action="" method="post">
-                                    @csrf
-                                    @method('POST')
-                                    <input type="hidden" name="bookId" value="">
+                                @if ($auth->role !== 'user')
+                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                        data-bs-target="#editBook-{{ $book->id }}">Edit</button>
+                                    <form action="{{ route('book.delete', $book->id) }}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-dark">Delete</button>
+                                    </form>
+                                @else
+                                    <form action="" method="post">
+                                        @csrf
+                                        @method('POST')
+                                        <input type="hidden" name="bookId" value="">
 
-                                    {{-- jika book loans contains status lend --}}
-                                    <button type="submit" class="btn btn-outline-primary" disabled>Borrowed</button>
-                                    {{-- yang lain --}}
-                                    <button type="submit" class="btn btn-outline-primary">Borrow</button>
-                                    {{--  --}}
+                                        {{-- jika book loans contains status lend --}}
+                                        <button type="submit" class="btn btn-outline-primary"
+                                            disabled>Borrowed</button>
+                                        {{-- yang lain --}}
+                                        <button type="submit" class="btn btn-outline-primary">Borrow</button>
+                                        {{--  --}}
 
-                                </form>
-                                <form action="" method="post">
-                                    @csrf
-                                    @method('POST')
-                                    <input type="hidden" name="bookId" value="">
+                                    </form>
+                                    <form action="" method="post">
+                                        @csrf
+                                        @method('POST')
+                                        <input type="hidden" name="bookId" value="">
 
-                                    {{-- jika book collections() where userId auth id  exists() --}}
-                                    <button type="submit" class="btn btn-outline-success"
-                                        disabled>Collection</button>
-                                    {{-- yang lain --}}
-                                    <button type="submit" class="btn btn-outline-success">Collection</button>
-                                    {{--  --}}
+                                        {{-- jika book collections() where userId auth id  exists() --}}
+                                        <button type="submit" class="btn btn-outline-success"
+                                            disabled>Collection</button>
+                                        {{-- yang lain --}}
+                                        <button type="submit" class="btn btn-outline-success">Collection</button>
+                                        {{--  --}}
 
-                                </form>
-                                <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
-                                    data-bs-target="#reviewBook- bookId">Review</button>
-                                {{--  --}}
+                                    </form>
+                                    <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
+                                        data-bs-target="#reviewBook- bookId">Review</button>
+                                @endif
 
                             </div>
                         </td>
                     </tr>
 
-                    <div class="modal fade" id="reviewBook- bookId" tabindex="-1" aria-labelledby="reviewBookLabel"
-                        aria-hidden="true">
+                    <div class="modal fade" id="reviewBook-{{ $book->id }}" tabindex="-1"
+                        aria-labelledby="reviewBookLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -194,8 +195,8 @@
                         </div>
                     </div>
 
-                    <div class="modal fade" id="addReview- bookId" tabindex="-1" aria-labelledby="addReviewLabel"
-                        aria-hidden="true">
+                    <div class="modal fade" id="addReview-{{ $book->id }}" tabindex="-1"
+                        aria-labelledby="addReviewLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -260,8 +261,8 @@
                         </div>
                     </div>
 
-                    <div class="modal fade" id="editBook- bookId" tabindex="-1" aria-labelledby="editBookLabel"
-                        aria-hidden="true">
+                    <div class="modal fade" id="editBook-{{ $book->id }}" tabindex="-1"
+                        aria-labelledby="editBookLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -269,40 +270,40 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <form action="" method="POST">
+                                <form action="{{ route('book.edit', $book->id) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
                                     <div class="modal-body mx-1">
                                         <div class="mb-3">
                                             <label for="titleInput" class="form-label">Title</label>
                                             <input type="text" class="form-control" id="titleInput"
-                                                name="title" value="">
+                                                name="title" value="{{ $book->title }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="CategoryInput" class="form-label">Category</label>
                                             <select class="form-select" name="category"
                                                 aria-label="Default select example">
                                                 <option selected disabled>Select Category</option>
-                                                {{-- foreach categories sebagai category) --}}
-                                                <option value="categoryId">category name
-                                                </option>
-                                                {{--  --}}
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="authorInput" class="form-label">Author</label>
                                             <input type="text" class="form-control" id="authorInput"
-                                                name="author" value="">
+                                                name="author" value="{{ $book->author }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="publisherInput" class="form-label">Publisher</label>
                                             <input type="text" class="form-control" id="publisherInput"
-                                                name="publisher" value="">
+                                                name="publisher" value="{{ $book->publisher }}">
                                         </div>
                                         <div>
                                             <label for="publicationInput" class="form-label">Publication Year</label>
                                             <input type="number" class="form-control" id="publicationInput"
-                                                name="pub_year" value="">
+                                                name="pub_year" value="{{ $book->pub_year }}">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -338,9 +339,9 @@
                             <label for="CategoryInput" class="form-label">Category</label>
                             <select class="form-select" name="category" aria-label="Default select example">
                                 <option selected disabled>Select Category</option>
-                                {{-- foreach categories as category --}}
-                                <option value="categoryId">categoryName</option>
-                                {{--  --}}
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="mb-3">

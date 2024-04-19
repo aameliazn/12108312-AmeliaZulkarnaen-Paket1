@@ -18,6 +18,6 @@ class Category extends Model
 
     public function books()
     {
-        return $this->belongsToMany(Book::class, 'category_relations', 'categoryId', 'bookId');
+        return $this->belongsToMany(Book::class, 'category_relations', 'bookId', 'categoryId');
     }
 }

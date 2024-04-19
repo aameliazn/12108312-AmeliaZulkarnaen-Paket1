@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\CategoryRelation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -36,7 +37,7 @@ class GlobalController extends Controller
     public function showBook()
     {
         $auth = Auth::user();
-        $books = Book::all();
+        $books = Book::with('categories')->get();
         $categories = Category::all();
         return view("dashboard.book", compact("auth", 'categories', 'books'));
     }
@@ -81,6 +82,30 @@ class GlobalController extends Controller
         return back()->with('success', 'Category success');
     }
 
+    public function storeBook(Request $request)
+    {
+        Validator::make($request->all(), [
+            'title' => 'required',
+            'category' => 'required',
+            'author' => 'required',
+            'publisher' => 'required',
+            'pub_year' => 'required',
+        ])->validate();
+
+        $book = Book::create([
+            'title' => $request->title,
+            'author' => $request->author,
+            'publisher' => $request->publisher,
+            'pub_year' => $request->pub_year,
+        ]);
+        
+        CategoryRelation::create([
+            'bookId' => $book->id,
+            'categoryId' => $request->category,
+        ]);
+        return back()->with('success', 'Book success');
+    }
+
     public function updateAdmin(Request $request, $id)
     {
         $user = User::findorFail($id);
@@ -99,6 +124,15 @@ class GlobalController extends Controller
         return back()->with('success', 'Update success');
     }
 
+    // public function updateBook(Request $request, $id)
+    // {
+    //     $book = Book::findorFail($id);
+
+    //     $book->update($request->all());
+
+    //     return back()->with('success', 'Update success');
+    // }
+
     public function destroyAdmin($id)
     {
         $user = User::findorFail($id);
@@ -113,6 +147,15 @@ class GlobalController extends Controller
         $category = Category::findorFail($id);
 
         $category->delete();
+
+        return back()->with('success', 'Delete success');
+    }
+
+    public function destroyBook($id)
+    {
+        $book = Book::findorFail($id);
+
+        $book->delete();
 
         return back()->with('success', 'Delete success');
     }

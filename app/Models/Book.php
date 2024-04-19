@@ -31,12 +31,12 @@ class Book extends Model
     {
         return $this->hasMany(Collection::class, 'bookId');
     }
-    
+
     public function lends()
     {
         return $this->hasMany(Lend::class, 'bookId');
     }
-        
+
     public function reviews()
     {
         return $this->hasMany(Review::class, 'bookId');
