@@ -20,7 +20,7 @@ Route::middleware([CheckAuth::class])->group(function () {
 
     Route::controller(GlobalController::class)->group(function () {
         Route::get('dashboard', 'index')->name('dashboard');
-        Route::get('export', 'export')->name('export')->middleware('roles:master,admin');
+        Route::post('export', 'export')->name('export')->middleware('roles:master,admin');
 
         Route::get('admin', 'showAdmin')->name('admin')->middleware('roles:master');
         Route::post('admin', 'storeAdmin')->name('admin.add')->middleware('roles:master');

@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
     <title>Lend Report | Library</title>
 
     <style>
@@ -29,12 +26,16 @@
         }
 
         tr:nth-child(even) {
-            background-color: #f2f2f2
+            background-color: #f2f2f2;
         }
 
         th {
             background-color: #438af3;
             color: white;
+        }
+
+        .text-danger {
+            color: red;
         }
     </style>
 
@@ -44,7 +45,7 @@
 
     <div>
         <h2>Lend Data</h2>
-        <table class="table">
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
@@ -52,37 +53,40 @@
                     <th>Email</th>
                     <th>Title</th>
                     <th>Author</th>
-                    <th>Loan Date</th>
+                    <th>Lend Date</th>
                     <th>Due Date</th>
+                    <th>Return Date</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($lends as $lend)
+                    @php
+                        $isOverdue = $lend->status === 'lend' && \Carbon\Carbon::parse($lend->due_date)->isPast();
+                    @endphp
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $lend->users->name }}</td>
-                        <td>{{ $lend->users->email }}</td>
-                        <td>{{ $lend->books->title }}</td>
-                        <td>{{ $lend->books->author }}</td>
-                        <td>{{ \Carbon\Carbon::parse($lend->lend_date)->format('M d, Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($lend->due_date)->format('M d, Y') }}</td>
-                        <td>{{ $lend->status }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $loop->iteration }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $lend->users->name }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $lend->users->email }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $lend->books->title }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $lend->books->author }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">
+                            {{ \Carbon\Carbon::parse($lend->lend_date)->format('M d, Y') }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">
+                            {{ \Carbon\Carbon::parse($lend->due_date)->format('M d, Y') }}</td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">
+                            @if ($lend->status === 'returned')
+                                {{ \Carbon\Carbon::parse($lend->updated_at)->format('M d, Y') }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td class="{{ $isOverdue ? 'text-danger' : '' }}">{{ $lend->status }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
-    </script>
 
 </body>
 

@@ -22,8 +22,11 @@ class GlobalController extends Controller
     public function index()
     {
         $auth = Auth::user();
-        $books = Book::with('lends')->get();
-        return view("dashboard.dashboard", compact("auth", 'books'));
+        $books = Book::with('lends', 'categories')->get();
+        $lends = Lend::with('books', 'users')->get();
+        $users = User::all();
+        $categories = Category::all();
+        return view("dashboard.dashboard", compact("auth", 'books', 'lends', 'users', 'categories'));
     }
 
     public function showAdmin()
@@ -43,15 +46,15 @@ class GlobalController extends Controller
     public function showBook()
     {
         $auth = Auth::user();
-        $books = Book::with('categories', 'reviews')->get();
         $categories = Category::all();
+        $books = Book::with('categories', 'reviews', 'lends', 'collections')->get();
         return view("dashboard.book", compact("auth", 'categories', 'books'));
     }
 
     public function showCollection()
     {
         $auth = Auth::user();
-        $books = Book::with('collections')->get();
+        $books = Book::with('collections', 'categories')->get();
         return view("dashboard.collection", compact('auth', 'books'));
     }
 
@@ -259,12 +262,21 @@ class GlobalController extends Controller
         return back()->with('success', 'Delete success');
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        if ($request->userId !== 'all') {
+            $data['lends'] = Lend::where('userId', $request->userId)->get();
+        } elseif ($request->bookId !== 'all') {
+            $data['lends'] = Lend::where('bookId', $request->bookId)->get();
+        } elseif ($request->userId !== 'all' && $request->bookId !== 'all') {
+            $data['lends'] = Lend::where('bookId', $request->bookId)->where('userId', $request->userId)->get();
+        } else {
+            $data['lends'] = Lend::all();
+        }
+
         date_default_timezone_set('Asia/Jakarta');
         $date = date('dmHis');
 
-        $data['lends'] = Lend::all();
         $export = Pdf::loadView('export.lend', $data);
         return $export->download('Book_Lend_Report_' . $date . '.pdf');
     }

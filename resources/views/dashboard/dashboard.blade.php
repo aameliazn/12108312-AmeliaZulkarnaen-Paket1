@@ -75,8 +75,105 @@
     @if ($auth->role !== 'user')
         <div class="m-5 d-flex justify-content-between gap-2">
             <div class="d-grid col-12">
-                <a href="{{ route('export') }}" class="btn btn-outline-primary">Export Loan Data</a>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                    data-bs-target="#varExport">Export Lend
+                    Book</button>
             </div>
+        </div>
+        <hr class="m-5">
+        <div class="m-5">
+            <h4 class="mb-4 text-center">Lend Data</h4>
+            <hr style="margin-bottom: -0.01rem;">
+            <table class="table table-hover">
+                <thead class="text-center">
+                    <tr>
+                        <th scope="col" style="width:3%">#</th>
+                        <th scope="col" style="width:15%">Name</th>
+                        <th scope="col" style="width:15%">Email</th>
+                        <th scope="col" style="width:15%">Title</th>
+                        <th scope="col" style="width:15%">Author</th>
+                        <th scope="col" style="width:10%">Lend Date</th>
+                        <th scope="col" style="width:10%">Due Date</th>
+                        <th scope="col" style="width:10%">Return Date</th>
+                        <th scope="col" style="width:7%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($lends as $lend)
+                        @php
+                            $textClass =
+                                $lend->status === 'lend' && \Carbon\Carbon::parse($lend->due_date)->isPast()
+                                    ? 'text-danger'
+                                    : '';
+                        @endphp
+                        <tr class="text-center">
+                            <th scope="row" class="{{ $textClass }}">{{ $loop->iteration }}</th>
+                            <td class="{{ $textClass }}">{{ $lend->users->name }}</td>
+                            <td class="{{ $textClass }}">{{ $lend->users->email }}</td>
+                            <td class="{{ $textClass }}">{{ $lend->books->title }}</td>
+                            <td class="{{ $textClass }}">{{ $lend->books->author }}</td>
+                            <td class="{{ $textClass }}">{{ $lend->lend_date }}</td>
+                            <td class="{{ $textClass }}">{{ $lend->due_date }}</td>
+                            <td class="{{ $textClass }}">
+                                @if ($lend->status === 'returned')
+                                    {{ \Carbon\Carbon::parse($lend->updated_at)->format('Y-m-d') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="{{ $textClass }}">{{ $lend->status }}</td>
+                        </tr>
+
+                        <div class="modal fade" id="varExport" tabindex="-1" aria-labelledby="varExportLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="varExportLabel">Export Lend Data</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ route('export') }}" method="POST">
+                                        @csrf
+                                        @method('POST')
+                                        <div class="modal-body mx-1">
+                                            <div class="mb-3">
+                                                <label for="CategoryInput" class="form-label">User</label>
+                                                <select class="form-select" name="userId"
+                                                    aria-label="Default select example">
+                                                    <option selected disabled>Select User</option>
+                                                    <option value="all">All User</option>
+                                                    @foreach ($users as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="CategoryInput" class="form-label">Book</label>
+                                                <select class="form-select" name="bookId"
+                                                    aria-label="Default select example">
+                                                    <option selected disabled>Select Book</option>
+                                                    <option value="all">All Book</option>
+                                                    @foreach ($books as $book)
+                                                        <option value="{{ $book->id }}">{{ $book->title }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-outline-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @else
         <hr class="m-5">
