@@ -3,12 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GlobalController;
 use App\Http\Middleware\CheckAuth;
-use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\RedirectAuth;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware([CheckAuth::class])->group(function () {
-    // ->middleware('roles:master,admin');
 
     Route::controller(AuthController::class)->group(function () {
         Route::get('register', 'register')->name('register')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);
