@@ -15,6 +15,6 @@ class CategoryRelation extends Model
 
     protected $fillable = [
         'bookId',
-        'CategoryId',
+        'categoryId',
     ];
 }

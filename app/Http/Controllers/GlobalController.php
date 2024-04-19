@@ -98,11 +98,12 @@ class GlobalController extends Controller
             'publisher' => $request->publisher,
             'pub_year' => $request->pub_year,
         ]);
-        
+
         CategoryRelation::create([
             'bookId' => $book->id,
             'categoryId' => $request->category,
         ]);
+
         return back()->with('success', 'Book success');
     }
 
