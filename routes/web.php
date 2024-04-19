@@ -10,7 +10,7 @@ Route::middleware([CheckAuth::class])->group(function () {
 
     Route::controller(AuthController::class)->group(function () {
         Route::get('register', 'register')->name('register')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);
-        Route::post('register/user', 'registerUser')->name('register.user')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);
+        Route::post('register', 'registerAction')->name('register.action')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);
 
         Route::get('login', 'login')->name('login')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);
         Route::post('login', 'loginAction')->name('login.action')->withoutMiddleware([CheckAuth::class])->middleware([RedirectAuth::class]);

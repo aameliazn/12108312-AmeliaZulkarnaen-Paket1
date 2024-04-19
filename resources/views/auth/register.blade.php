@@ -15,7 +15,7 @@
 <body style="background-color: #eceff7;">
 
     <div class="d-flex justify-content-center my-5">
-        <form action="{{ route('register.user') }}" method="POST">
+        <form action="{{ route('register.action') }}" method="POST">
             @csrf
             @method('POST')
             <div class="card p-2" style="width: 49rem;">

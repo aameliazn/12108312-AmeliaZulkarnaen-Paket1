@@ -21,7 +21,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function registerUser(Request $request)
+    public function registerAction(Request $request)
     {
         Validator::make($request->all(), [
             'username' => 'required',
