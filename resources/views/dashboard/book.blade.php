@@ -118,34 +118,34 @@
                                         <button type="submit" class="btn btn-outline-dark">Delete</button>
                                     </form>
                                 @else
-                                    <form action="" method="post">
+                                    <form action="{{ route('lend.add') }}" method="post">
                                         @csrf
                                         @method('POST')
-                                        <input type="hidden" name="bookId" value="">
+                                        <input type="hidden" name="bookId" value="{{ $book->id }}">
 
-                                        {{-- jika book loans contains status lend --}}
-                                        <button type="submit" class="btn btn-outline-primary"
-                                            disabled>Borrowed</button>
-                                        {{-- yang lain --}}
-                                        <button type="submit" class="btn btn-outline-primary">Borrow</button>
-                                        {{--  --}}
+                                        @if ($book->lends->contains('status', 'lend'))
+                                            <button type="submit" class="btn btn-outline-primary"
+                                                disabled>Borrowed</button>
+                                        @else
+                                            <button type="submit" class="btn btn-outline-primary">Borrow</button>
+                                        @endif
 
                                     </form>
-                                    <form action="" method="post">
+                                    <form action="{{ route('collection.add') }}" method="post">
                                         @csrf
                                         @method('POST')
-                                        <input type="hidden" name="bookId" value="">
+                                        <input type="hidden" name="bookId" value="{{ $book->id }}">
 
-                                        {{-- jika book collections() where userId auth id  exists() --}}
-                                        <button type="submit" class="btn btn-outline-success"
-                                            disabled>Collection</button>
-                                        {{-- yang lain --}}
-                                        <button type="submit" class="btn btn-outline-success">Collection</button>
-                                        {{--  --}}
+                                        @if ($book->collections()->where('userId', $auth->id)->exists())
+                                            <button type="submit" class="btn btn-outline-success"
+                                                disabled>Collection</button>
+                                        @else
+                                            <button type="submit" class="btn btn-outline-success">Collection</button>
+                                        @endif
 
                                     </form>
                                     <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
-                                        data-bs-target="#reviewBook- bookId">Review</button>
+                                        data-bs-target="#reviewBook-{{ $book->id }}">Review</button>
                                 @endif
 
                             </div>
@@ -157,35 +157,38 @@
                         <div class="modal-dialog modal-dialog-scrollable">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5 me-2" id="reviewBookLabel">Review
+                                    <h1 class="modal-title fs-5 me-2" id="reviewBookLabel">Review {{ $book->title }}
                                     </h1>
 
-                                    {{-- jika book loans() where userId auth id where bookId book id where status returned exists() --}}
-                                    <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
-                                        data-bs-target="#addReview- bookId">Add Review</button>
-                                    {{--  --}}
+                                    @if ($book->lends()->where('userId', $auth->id)->where('bookId', $book->id)->where('status', 'returned')->exists())
+                                        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal"
+                                            data-bs-target="#addReview-{{ $book->id }}">Add Review</button>
+                                    @endif
 
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body mx-1">
-                                    {{-- foreach book reviews sebagai review --}}
-                                    <p class="fs-5">review username - berapa Bintang
-                                    </p>
-                                    <div class="d-flex justify-content-between">
-                                        <p>""</p>
-                                        {{-- jika review userId sama dengan $auth id) --}}
-                                        <form action="" method="post">
-                                            @csrf
-                                            @method('DELETE')
-                                            <input type="hidden" name="id" value="">
-                                            <button type="submit" class="btn btn-outline-danger"><i
-                                                    class="bi bi-trash"></i></button>
-                                        </form>
-                                        {{--  --}}
-                                    </div>
-                                    <hr>
-                                    {{--  --}}
+                                    @foreach ($book->reviews as $review)
+                                        <p class="fs-5">{{ $review->users->username }} - {{ $review->rating }}
+                                            Bintang
+                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <p>"{{ $review->review }}"</p>
+                                            @if ($review->userId === $auth->id)
+                                                <form action="{{ route('review.delete', $review->id) }}"
+                                                    method="post">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="id"
+                                                        value="{{ $review->id }}">
+                                                    <button type="submit" class="btn btn-outline-danger"><i
+                                                            class="bi bi-trash"></i></button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                        <hr>
+                                    @endforeach
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary"
@@ -200,15 +203,15 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="addReviewLabel">Review </h1>
+                                    <h1 class="modal-title fs-5" id="addReviewLabel">Review {{ $book->title }}</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <form action="" method="POST">
+                                <form action="{{ route('review.add') }}" method="POST">
                                     @csrf
                                     @method('POST')
                                     <div class="modal-body mx-1">
-                                        <input type="hidden" name="bookId" value="">
+                                        <input type="hidden" name="bookId" value="{{ $book->id }}">
                                         <div class="mb-3">
                                             <label for="reviewInput" class="form-label">Review</label>
                                             <textarea class="form-control" id="reviewInput" name="review"></textarea>

@@ -7,6 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\CategoryRelation;
+use App\Models\Collection;
+use App\Models\Lend;
+use App\Models\Review;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +22,8 @@ class GlobalController extends Controller
     public function index()
     {
         $auth = Auth::user();
-        return view("dashboard.dashboard", compact("auth"));
+        $books = Book::with('lends')->get();
+        return view("dashboard.dashboard", compact("auth", 'books'));
     }
 
     public function showAdmin()
@@ -37,14 +43,16 @@ class GlobalController extends Controller
     public function showBook()
     {
         $auth = Auth::user();
-        $books = Book::with('categories')->get();
+        $books = Book::with('categories', 'reviews')->get();
         $categories = Category::all();
         return view("dashboard.book", compact("auth", 'categories', 'books'));
     }
 
     public function showCollection()
     {
-        return view("dashboard.collection");
+        $auth = Auth::user();
+        $books = Book::with('collections')->get();
+        return view("dashboard.collection", compact('auth', 'books'));
     }
 
     public function storeAdmin(Request $request)
@@ -107,6 +115,58 @@ class GlobalController extends Controller
         return back()->with('success', 'Book success');
     }
 
+    public function storeLend(Request $request)
+    {
+        $lendDate = Carbon::now()->toDateString();
+        $dueDate = Carbon::now()->addDays(7)->toDateString();
+
+        Validator::make($request->all(), [
+            'bookId' => 'required',
+        ])->validate();
+
+        Lend::create([
+            'userId' => Auth::id(),
+            'bookId' => $request->bookId,
+            'lend_date' => $lendDate,
+            'due_date' => $dueDate,
+            'status' => 'lend',
+        ]);
+
+        return back()->with('success', 'Lend success');
+    }
+
+    public function storeCollection(Request $request)
+    {
+        Validator::make($request->all(), [
+            'bookId' => 'required',
+        ])->validate();
+
+        Collection::create([
+            'userId' => Auth::id(),
+            'bookId' => $request->bookId,
+        ]);
+
+        return back()->with('success', 'Collection success');
+    }
+
+    public function storeReview(Request $request)
+    {
+        Validator::make($request->all(), [
+            'bookId' => 'required',
+            'review' => 'required',
+            'rating' => 'required',
+        ])->validate();
+
+        Review::create([
+            'userId' => Auth::id(),
+            'bookId' => $request->bookId,
+            'review' => $request->review,
+            'rating' => $request->rating,
+        ]);
+
+        return back()->with('success', 'Collection success');
+    }
+
     public function updateAdmin(Request $request, $id)
     {
         $user = User::findorFail($id);
@@ -143,6 +203,17 @@ class GlobalController extends Controller
         return back()->with('success', 'Update success');
     }
 
+    public function updateLend(Request $request, $id)
+    {
+        $lend = Lend::findorFail($id);
+
+        $lend->update([
+            'status' => 'returned',
+        ]);
+
+        return back()->with('success', 'Update success');
+    }
+
     public function destroyAdmin($id)
     {
         $user = User::findorFail($id);
@@ -168,5 +239,33 @@ class GlobalController extends Controller
         $book->delete();
 
         return back()->with('success', 'Delete success');
+    }
+
+    public function destroyCollection($id)
+    {
+        $collection = Collection::findorFail($id);
+
+        $collection->delete();
+
+        return back()->with('success', 'Delete success');
+    }
+
+    public function destroyReview($id)
+    {
+        $review = Review::findorFail($id);
+
+        $review->delete();
+
+        return back()->with('success', 'Delete success');
+    }
+
+    public function export()
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $date = date('dmHis');
+
+        $data['lends'] = Lend::all();
+        $export = Pdf::loadView('export.lend', $data);
+        return $export->download('Book_Lend_Report_' . $date . '.pdf');
     }
 }

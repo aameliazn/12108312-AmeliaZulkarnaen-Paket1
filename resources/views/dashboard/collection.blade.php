@@ -17,10 +17,10 @@
     <nav class="navbar navbar-expand-lg navbar-light px-5" style="background-color: #d7e1f0;">
         <div class="d-flex flex-grow-1">
             <span class="w-100 d-lg-none d-block"><!-- hidden spacer to center brand on mobile --></span>
-            <a class="navbar-brand d-none d-lg-inline-block" href="">
+            <a class="navbar-brand d-none d-lg-inline-block" href="{{ route('dashboard') }}"">
                 Library
             </a>
-            <a class="navbar-brand-two mx-auto d-lg-none d-inline-block" href="">
+            <a class="navbar-brand-two mx-auto d-lg-none d-inline-block" href="{{ route('dashboard') }}"">
                 <img src="//via.placeholder.com/40?text=LIB." alt="logo">
             </a>
             <div class="w-100 text-right">
@@ -32,36 +32,36 @@
         <div class="collapse navbar-collapse flex-grow-1 text-right ms-5" id="myNavbar">
             <ul class="navbar-nav ms-5 flex-nowrap">
                 <li class="nav-item ms-5">
-                    <a href="" class="nav-link m-2 menu-item nav-active ms-5">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="nav-link m-2 menu-item nav-active ms-5">Dashboard</a>
                 </li>
 
-                {{-- untuk role master --}}
+                @if ($auth->role === 'master')
                     <li class="nav-item">
-                        <a href="" class="nav-link m-2 menu-item">Admin</a>
+                        <a href="{{ route('admin') }}" class="nav-link m-2 menu-item">Admin</a>
                     </li>
-                {{--  --}}
+                @endif
 
-                {{-- untuk role bukan user --}}
+                @if ($auth->role !== 'user')
                     <li class="nav-item">
-                        <a href="" class="nav-link m-2 menu-item">Category</a>
+                        <a href="{{ route('category') }}" class="nav-link m-2 menu-item">Category</a>
                     </li>
-                {{--  --}}
+                @endif
 
                 <li class="nav-item">
-                    <a href="" class="nav-link m-2 menu-item">Book</a>
+                    <a href="{{ route('book') }}" class="nav-link m-2 menu-item">Book</a>
                 </li>
 
-                {{-- untuk role user --}}
+                @if ($auth->role === 'user')
                     <li class="nav-item">
-                        <a href="" class="nav-link m-2 menu-item">Collection</a>
+                        <a href="{{ route('collection') }}" class="nav-link m-2 menu-item">Collection</a>
                     </li>
-                {{--  --}}
+                @endif
             </ul>
         </div>
         <div class="collapse navbar-collapse flex-grow-1 justify-content-end" id="myNavbar">
             <ul class="navbar-nav ms-auto flex-nowrap">
                 <li class="nav-item">
-                    <a href="" class="btn btn-outline-danger menu-item">Logout</a>
+                    <a href="{{ route('logout') }}" class="btn btn-outline-danger menu-item">Logout</a>
                 </li>
             </ul>
         </div>
@@ -83,36 +83,38 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- foreach books book --}}
-                    {{-- code php book collections where userId auth id where bookId book id first() --}}
-                        
-                    {{--  --}}
-                    {{-- if book collections contains userId auth id --}}
+                @foreach ($books as $book)
+                    @php
+                        $bookCollections = $book->collections
+                            ->where('userId', $auth->id)
+                            ->where('bookId', $book->id)
+                            ->first();
+                    @endphp
+
+                    @if ($book->collections->contains('userId', $auth->id))
                         <tr>
-                            <th scope="row"></th>
-                            <td></td>
-                            {{-- foreach book categories sebagai category --}}
-                                <td>category name</td>
-                            {{--  --}}
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <th scope="row">{{ $loop->iteration }}</th>
+                            <td>{{ $book->title }}</td>
+                            @foreach ($book->categories as $category)
+                                <td>{{ $category->name }}</td>
+                            @endforeach
+                            <td>{{ $book->author }}</td>
+                            <td>{{ $book->publisher }}</td>
+                            <td>{{ $book->pub_year }}</td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    {{-- ambil id dari code php atas --}}
-                                    <form action=""
+                                    <form action="{{ route('collection.delete', $bookCollections->id) }}"
                                         method="post">
                                         @csrf
                                         @method('DELETE')
-                                        {{-- ambil id dari code php atas -> id --}}
-                                        <input type="hidden" name="id" value="">
+                                        <input type="hidden" name="id" value="{{ $bookCollections->id }}">
                                         <button type="submit" class="btn btn-outline-success">Delete</button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    {{--  --}}
-                {{--  --}}
+                    @endif
+                @endforeach
             </tbody>
         </table>
     </div>

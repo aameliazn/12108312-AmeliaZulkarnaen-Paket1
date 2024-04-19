@@ -49,6 +49,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             return redirect()->route('dashboard')->with('success', 'Login success');
+        } else {
+            return back()->withErrors(['Invalid credentials. Please try again.']);
         }
     }
 

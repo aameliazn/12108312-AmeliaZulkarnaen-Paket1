@@ -69,13 +69,13 @@
 
     <div class="m-5 text-center">
         <h2>Hola {{ $auth->name }}!</h2>
-        <p>jam+7</p>
+        <p>{{ \Carbon\Carbon::now()->addHour(7)->isoFormat('dddd, D MMMM Y') }}</p>
     </div>
 
     @if ($auth->role !== 'user')
         <div class="m-5 d-flex justify-content-between gap-2">
             <div class="d-grid col-12">
-                <a href="" class="btn btn-outline-primary">Export Loan Data</a>
+                <a href="{{ route('export') }}" class="btn btn-outline-primary">Export Loan Data</a>
             </div>
         </div>
     @else
@@ -96,35 +96,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- foreach books --}}
-                    {{-- code php book loans where userId auth id where bookId book id where status lend first() --}}
+                    @foreach ($books as $book)
+                        @php
+                            $bookLends = $book->lends
+                                ->where('userId', $auth->id)
+                                ->where('bookId', $book->id)
+                                ->where('status', 'lend')
+                                ->first();
+                        @endphp
 
-                    {{--  --}}
-                    {{-- if book loans where userId auth id contains status lend --}}
-                    <tr>
-                        <th scope="row"></th>
-                        <td></td>
-                        {{-- foreach book categories sebagai category --}}
-                        <td></td>
-                        {{--  --}}
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <div class="d-flex gap-2 justify-content-center">
-                                {{-- ambil -> id code php atas --}}
-                                <form action="" method="post">
-                                    @csrf
-                                    @method('PATCH')
-                                    {{-- ambil -> id code php atas --}}
-                                    <input type="hidden" name="id" value="">
-                                    <button type="submit" class="btn btn-outline-primary">Return</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {{--  --}}
-                    {{--  --}}
+                        @if ($book->lends->where('userId', $auth->id)->contains('status', 'lend'))
+                            <tr>
+                                <th scope="row">{{ $loop->iteration }}</th>
+                                <td>{{ $book->title }}</td>
+                                @foreach ($book->categories as $category)
+                                    <td>{{ $category->name }}</td>
+                                @endforeach
+                                <td>{{ $book->author }}</td>
+                                <td>{{ $book->publisher }}</td>
+                                <td>{{ $book->pub_year }}</td>
+                                <td>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <form action="{{ route('lend.edit', $bookLends->id) }}" method="post">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="id" value="{{ $bookLends->id }}">
+                                            <button type="submit" class="btn btn-outline-primary">Return</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
                 </tbody>
             </table>
         </div>

@@ -58,18 +58,18 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- foreach lends sebagai lend --}}
+                @foreach ($lends as $lend)
                     <tr>
-                        <td></td>
-                        <td>lend users name</td>
-                        <td></td>
-                        <td>lend books title</td>
-                        <td></td>
-                        <td>Carbon parse lend lend_date format M d, Y </td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $lend->users->name }}</td>
+                        <td>{{ $lend->users->email }}</td>
+                        <td>{{ $lend->books->title }}</td>
+                        <td>{{ $lend->books->author }}</td>
+                        <td>{{ \Carbon\Carbon::parse($lend->lend_date)->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($lend->due_date)->format('M d, Y') }}</td>
+                        <td>{{ $lend->status }}</td>
                     </tr>
-                {{--  --}}
+                @endforeach
             </tbody>
         </table>
     </div>

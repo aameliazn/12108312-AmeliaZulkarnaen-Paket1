@@ -23,7 +23,15 @@
                     <h5 class="card-title text-center">Login</h5>
                     <hr>
 
-                    {{-- error alert --}}
+                    @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     <div class="mb-3 mt-4">
                         <label for="exampleInputUsername1" class="form-label">Username</label>
