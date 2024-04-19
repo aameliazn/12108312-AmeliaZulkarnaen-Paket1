@@ -125,14 +125,23 @@ class GlobalController extends Controller
         return back()->with('success', 'Update success');
     }
 
-    // public function updateBook(Request $request, $id)
-    // {
-    //     $book = Book::findorFail($id);
+    public function updateBook(Request $request, $id)
+    {
+        $book = Book::findorFail($id);
 
-    //     $book->update($request->all());
+        $book->update([
+            'title' => $request->title,
+            'author' => $request->author,
+            'publisher' => $request->publisher,
+            'pub_year' => $request->pub_year,
+        ]);
 
-    //     return back()->with('success', 'Update success');
-    // }
+        CategoryRelation::where('bookId', $id)->update([
+            'categoryId' => $request->category,
+        ]);
+
+        return back()->with('success', 'Update success');
+    }
 
     public function destroyAdmin($id)
     {
