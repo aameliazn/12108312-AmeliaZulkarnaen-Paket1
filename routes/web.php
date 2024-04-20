@@ -6,6 +6,11 @@ use App\Http\Middleware\CheckAuth;
 use App\Http\Middleware\RedirectAuth;
 use Illuminate\Support\Facades\Route;
 
+Route::fallback(function () {
+    return redirect()->route('dashboard')->with('Error', 'Nothing..');
+});
+
+
 Route::middleware([CheckAuth::class])->group(function () {
 
     Route::controller(AuthController::class)->group(function () {

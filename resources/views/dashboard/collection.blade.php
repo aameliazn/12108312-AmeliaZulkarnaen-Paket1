@@ -68,53 +68,65 @@
     </nav>
 
     <div class="m-5 text-center">
-        <h4 class="mb-4">Data Collection</h4>
+        <div class="d-flex justify-content-between">
+            <div></div>
+            <div></div>
+            <h4>Data Collection</h4>
+            <form action="{{ route('collection') }}" class="d-flex" method="GET" role="search">
+                <input type="search" name="search" placeholder="Search here.." aria-label="Search"
+                    class="form-control me-2">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
+        </div>
         <hr style="margin-bottom: -0.01rem;">
         <table class="table table-hover">
             <thead>
                 <tr>
                     <th scope="col" style="width:3%">#</th>
-                    <th scope="col" style="width:17%">Title</th>
-                    <th scope="col" style="width:16%">Category</th>
-                    <th scope="col" style="width:16%">Author</th>
-                    <th scope="col" style="width:16%">Publisher</th>
-                    <th scope="col" style="width:10%">Publication Year</th>
-                    <th scope="col" style="width:22%">Action</th>
+                    <th scope="col" style="width:13%">Cover</th>
+                    <th scope="col" style="width:13%">Title</th>
+                    <th scope="col" style="width:10%">Stock</th>
+                    <th scope="col" style="width:12%">Category</th>
+                    <th scope="col" style="width:13%">Author</th>
+                    <th scope="col" style="width:15%">Publisher</th>
+                    <th scope="col" style="width:16%">Publication Year</th>
+                    <th scope="col" style="width:8%">Action</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($books as $book)
-                    @php
-                        $bookCollections = $book->collections
-                            ->where('userId', $auth->id)
-                            ->where('bookId', $book->id)
-                            ->first();
-                    @endphp
-
-                    @if ($book->collections->contains('userId', $auth->id))
+                @if (count($results) > 0)
+                    @foreach ($results as $result)
                         <tr>
                             <th scope="row">{{ $loop->iteration }}</th>
-                            <td>{{ $book->title }}</td>
-                            @foreach ($book->categories as $category)
-                                <td>{{ $category->name }}</td>
-                            @endforeach
-                            <td>{{ $book->author }}</td>
-                            <td>{{ $book->publisher }}</td>
-                            <td>{{ $book->pub_year }}</td>
+                            <td><img src="{{ asset($result->path_cover) }}" alt="{{ $result->title }}"
+                                    style="width: 100px; height:100px;"></td>
+                            <td>{{ $result->title }}</td>
+                            <td>{{ $result->stock }}</td>
+                            <td>{{ $result->name }}</td>
+                            <td>{{ $result->author }}</td>
+                            <td>{{ $result->publisher }}</td>
+                            <td>{{ $result->pub_year }}</td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <form action="{{ route('collection.delete', $bookCollections->id) }}"
-                                        method="post">
+                                    <form action="{{ route('collection.delete', $result->bookId) }}" method="post">
                                         @csrf
                                         @method('DELETE')
-                                        <input type="hidden" name="id" value="{{ $bookCollections->id }}">
+                                        <input type="hidden" name="id" value="{{ $result->bookId }}">
                                         <button type="submit" class="btn btn-outline-success">Delete</button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    @endif
-                @endforeach
+                    @endforeach
+                @else
+                    <th></th>
+                    <td>No data found...</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                @endif
             </tbody>
         </table>
     </div>

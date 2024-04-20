@@ -82,153 +82,183 @@
         </div>
         <hr class="m-5">
         <div class="m-5">
-            <h4 class="mb-4 text-center">Lend Data</h4>
+            <div class="d-flex justify-content-between">
+                <div></div>
+                <div></div>
+                <h4 class="text-center">Lend Data</h4>
+                <form action="{{ route('dashboard') }}" class="d-flex me-5" method="GET" role="search">
+                    <input type="search" name="search" placeholder="Search here.." aria-label="Search"
+                        class="form-control me-2">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </form>
+            </div>
             <hr style="margin-bottom: -0.01rem;">
             <table class="table table-hover">
                 <thead class="text-center">
                     <tr>
                         <th scope="col" style="width:3%">#</th>
-                        <th scope="col" style="width:15%">Name</th>
-                        <th scope="col" style="width:15%">Email</th>
-                        <th scope="col" style="width:15%">Title</th>
-                        <th scope="col" style="width:15%">Author</th>
-                        <th scope="col" style="width:10%">Lend Date</th>
-                        <th scope="col" style="width:10%">Due Date</th>
-                        <th scope="col" style="width:10%">Return Date</th>
+                        <th scope="col" style="width:13%">Name</th>
+                        <th scope="col" style="width:13%">Email</th>
+                        <th scope="col" style="width:14%">Cover</th>
+                        <th scope="col" style="width:13%">Title</th>
+                        <th scope="col" style="width:13%">Author</th>
+                        <th scope="col" style="width:8%">Lend Date</th>
+                        <th scope="col" style="width:8%">Due Date</th>
+                        <th scope="col" style="width:8%">Return Date</th>
                         <th scope="col" style="width:7%">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($lends as $lend)
-                        @php
-                            $textClass =
-                                $lend->status === 'lend' && \Carbon\Carbon::parse($lend->due_date)->isPast()
-                                    ? 'text-danger'
-                                    : '';
-                        @endphp
-                        <tr class="text-center">
-                            <th scope="row" class="{{ $textClass }}">{{ $loop->iteration }}</th>
-                            <td class="{{ $textClass }}">{{ $lend->users->name }}</td>
-                            <td class="{{ $textClass }}">{{ $lend->users->email }}</td>
-                            <td class="{{ $textClass }}">{{ $lend->books->title }}</td>
-                            <td class="{{ $textClass }}">{{ $lend->books->author }}</td>
-                            <td class="{{ $textClass }}">{{ $lend->lend_date }}</td>
-                            <td class="{{ $textClass }}">{{ $lend->due_date }}</td>
-                            <td class="{{ $textClass }}">
-                                @if ($lend->status === 'returned')
-                                    {{ \Carbon\Carbon::parse($lend->updated_at)->format('Y-m-d') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="{{ $textClass }}">{{ $lend->status }}</td>
-                        </tr>
-
-                        <div class="modal fade" id="varExport" tabindex="-1" aria-labelledby="varExportLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="varExportLabel">Export Lend Data</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <form action="{{ route('export') }}" method="POST">
-                                        @csrf
-                                        @method('POST')
-                                        <div class="modal-body mx-1">
-                                            <div class="mb-3">
-                                                <label for="CategoryInput" class="form-label">User</label>
-                                                <select class="form-select" name="userId"
-                                                    aria-label="Default select example">
-                                                    <option selected disabled>Select User</option>
-                                                    <option value="all">All User</option>
-                                                    @foreach ($users as $user)
-                                                        <option value="{{ $user->id }}">{{ $user->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="CategoryInput" class="form-label">Book</label>
-                                                <select class="form-select" name="bookId"
-                                                    aria-label="Default select example">
-                                                    <option selected disabled>Select Book</option>
-                                                    <option value="all">All Book</option>
-                                                    @foreach ($books as $book)
-                                                        <option value="{{ $book->id }}">{{ $book->title }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-outline-primary">Submit</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                    @if (count($results) > 0)
+                        @foreach ($results as $result)
+                            @php
+                                $textClass =
+                                    $result->status === 'lend' && \Carbon\Carbon::parse($result->due_date)->isPast()
+                                        ? 'text-danger'
+                                        : '';
+                            @endphp
+                            <tr class="text-center">
+                                <th scope="row" class="{{ $textClass }}">{{ $loop->iteration }}</th>
+                                <td class="{{ $textClass }}">{{ $result->name }}</td>
+                                <td class="{{ $textClass }}">{{ $result->email }}</td>
+                                <td><img src="{{ asset($result->path_cover) }}" alt="{{ $result->title }}"
+                                        style="height: 80px; width: 80px;"></td>
+                                <td class="{{ $textClass }}">{{ $result->title }}</td>
+                                <td class="{{ $textClass }}">{{ $result->author }}</td>
+                                <td class="{{ $textClass }}">{{ $result->lend_date }}</td>
+                                <td class="{{ $textClass }}">{{ $result->due_date }}</td>
+                                <td class="{{ $textClass }}">
+                                    @if ($result->status === 'returned')
+                                        {{ \Carbon\Carbon::parse($result->updated_at)->format('Y-m-d') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="{{ $textClass }}">{{ $result->status }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <th></th>
+                        <td>No data found...</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    @endif
                 </tbody>
             </table>
         </div>
     @else
         <hr class="m-5">
         <div class="m-5 text-center">
-            <h4 class="mb-4">Data Borrowed</h4>
+            <div class="d-flex justify-content-between">
+                <div></div>
+                <div></div>
+                <h4 class="text-center">Borrowed Book</h4>
+                <form action="{{ route('dashboard') }}" class="d-flex" method="GET" role="search">
+                    <input type="search" name="search2" placeholder="Search here.." aria-label="Search"
+                        class="form-control me-2">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </form>
+            </div>
             <hr style="margin-bottom: -0.01rem;">
             <table class="table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" style="width:3%">#</th>
-                        <th scope="col" style="width:19%">Title</th>
-                        <th scope="col" style="width:18%">Category</th>
-                        <th scope="col" style="width:18%">Author</th>
-                        <th scope="col" style="width:18%">Publisher</th>
-                        <th scope="col" style="width:12%">Publication Year</th>
+                        <th scope="col" style="width:15%">Cover</th>
+                        <th scope="col" style="width:15%">Title</th>
+                        <th scope="col" style="width:15%">Category</th>
+                        <th scope="col" style="width:15%">Author</th>
+                        <th scope="col" style="width:15%">Publisher</th>
+                        <th scope="col" style="width:10%">Publication Year</th>
                         <th scope="col" style="width:12%">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($books as $book)
-                        @php
-                            $bookLends = $book->lends
-                                ->where('userId', $auth->id)
-                                ->where('bookId', $book->id)
-                                ->where('status', 'lend')
-                                ->first();
-                        @endphp
-
-                        @if ($book->lends->where('userId', $auth->id)->contains('status', 'lend'))
-                            <tr>
-                                <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $book->title }}</td>
-                                @foreach ($book->categories as $category)
-                                    <td>{{ $category->name }}</td>
-                                @endforeach
-                                <td>{{ $book->author }}</td>
-                                <td>{{ $book->publisher }}</td>
-                                <td>{{ $book->pub_year }}</td>
-                                <td>
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        <form action="{{ route('lend.edit', $bookLends->id) }}" method="post">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="id" value="{{ $bookLends->id }}">
-                                            <button type="submit" class="btn btn-outline-primary">Return</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
-                    @endforeach
+                    @if (count($results2) > 0)
+                        @foreach ($results2 as $result)
+                            @if ($result->status === 'lend')
+                                <tr>
+                                    <th scope="row">{{ $loop->iteration }}</th>
+                                    <td><img src="{{ asset($result->path_cover) }}" alt="{{ $result->title }}"
+                                            style="height: 100px; width: 100px;"></td>
+                                    <td>{{ $result->title }}</td>
+                                    <td>{{ $result->name }}</td>
+                                    <td>{{ $result->author }}</td>
+                                    <td>{{ $result->publisher }}</td>
+                                    <td>{{ $result->pub_year }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <form action="{{ route('lend.edit', $result->bookId) }}" method="post">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="id" value="{{ $result->bookId }}">
+                                                <button type="submit" class="btn btn-outline-primary">Return</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    @else
+                        <th></th>
+                        <td>No data found...</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    @endif
                 </tbody>
             </table>
         </div>
     @endif
+
+    <div class="modal fade" id="varExport" tabindex="-1" aria-labelledby="varExportLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="varExportLabel">Export Lend Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('export') }}" method="POST">
+                    @csrf
+                    @method('POST')
+                    <div class="modal-body mx-1">
+                        <div class="mb-3">
+                            <label for="CategoryInput" class="form-label">User</label>
+                            <select class="form-select" name="userId" aria-label="Default select example">
+                                <option value="all" selected>All User</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="CategoryInput" class="form-label">Book</label>
+                            <select class="form-select" name="bookId" aria-label="Default select example">
+                                <option value="all" selected>All Book</option>
+                                @foreach ($books as $book)
+                                    <option value="{{ $book->id }}">{{ $book->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-outline-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">

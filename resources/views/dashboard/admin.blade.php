@@ -69,8 +69,13 @@
 
     <div class="m-5">
         <div class="d-flex justify-content-between mb-4 text-center">
-            <div></div>
+            <form action="{{ route('admin') }}" class="d-flex" method="GET" role="search">
+                <input type="search" name="search" placeholder="Search here.." aria-label="Search"
+                    class="form-control me-2">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
             <h4>Data Admin</h4>
+            <div></div>
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addAdmin">Add
                 Data</button>
         </div>
@@ -87,77 +92,85 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($admins as $admin)
-                    <tr class="text-center">
-                        <th scope="row">{{ $loop->iteration }}</th>
-                        <td>{{ $admin->name }}</td>
-                        <td>{{ $admin->username }}</td>
-                        <td>{{ $admin->email }}</td>
-                        <td>{{ $admin->address }}</td>
-                        <td>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#editAdmin-{{ $admin->id }}">Edit</button>
-                                <form action="{{ route('admin.delete', $admin->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-dark">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <div class="modal fade" id="editAdmin-{{ $admin->id }}" tabindex="-1"
-                        aria-labelledby="editAdminLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="editAdminLabel">Edit Data</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                @if (count($results) > 0)
+                    @foreach ($results as $result)
+                        <tr class="text-center">
+                            <th scope="row">{{ $loop->iteration }}</th>
+                            <td>{{ $result->name }}</td>
+                            <td>{{ $result->username }}</td>
+                            <td>{{ $result->email }}</td>
+                            <td>{{ $result->address }}</td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                        data-bs-target="#editAdmin-{{ $result->id }}">Edit</button>
+                                    <form action="{{ route('admin.delete', $result->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-dark">Delete</button>
+                                    </form>
                                 </div>
-                                <form action="{{ route('admin.edit', $admin->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="modal-body mx-1">
-                                        <div class="mb-3">
-                                            <label for="nameInput" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="nameInput" name="name"
-                                                value="{{ $admin->name }}">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="addressInput" class="form-label">Address</label>
-                                            <textarea class="form-control" id="addressInput" aria-describedby="addressHelp" name="address">{{ $admin->address }}</textarea>
-                                            <div id="addressHelp" class="form-text">We'll never share your address
-                                                with anyone else.
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="editAdmin-{{ $result->id }}" tabindex="-1"
+                            aria-labelledby="editAdminLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editAdminLabel">Edit Data</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ route('admin.edit', $result->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="modal-body mx-1">
+                                            <div class="mb-3">
+                                                <label for="nameInput" class="form-label">Name</label>
+                                                <input type="text" class="form-control" id="nameInput"
+                                                    name="name" value="{{ $result->name }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="addressInput" class="form-label">Address</label>
+                                                <textarea class="form-control" id="addressInput" aria-describedby="addressHelp" name="address">{{ $result->address }}</textarea>
+                                                <div id="addressHelp" class="form-text">We'll never share your address
+                                                    with anyone else.
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="exampleInputEmail1" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                                    name="email" value="{{ $result->email }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="usernameInput" class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="usernameInput"
+                                                    name="username" value="{{ $result->username }}">
+                                            </div>
+                                            <div>
+                                                <label for="exampleInputPassword1" class="form-label">Password</label>
+                                                <input type="password" class="form-control"
+                                                    id="exampleInputPassword1" name="password">
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="exampleInputEmail1" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="exampleInputEmail1"
-                                                name="email" value="{{ $admin->email }}">
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-outline-primary">Submit</button>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="usernameInput" class="form-label">Username</label>
-                                            <input type="text" class="form-control" id="usernameInput"
-                                                name="username" value="{{ $admin->username }}">
-                                        </div>
-                                        <div>
-                                            <label for="exampleInputPassword1" class="form-label">Password</label>
-                                            <input type="password" class="form-control" id="exampleInputPassword1"
-                                                name="password">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-secondary"
-                                            data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-outline-primary">Submit</button>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @else
+                    <th></th>
+                    <td>No data found...</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                @endif
             </tbody>
         </table>
     </div>

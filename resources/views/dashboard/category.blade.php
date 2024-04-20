@@ -69,8 +69,13 @@
 
     <div class="m-5">
         <div class="d-flex justify-content-between mb-4 text-center">
-            <div></div>
+            <form action="{{ route('category') }}" class="d-flex" method="GET" role="search">
+                <input type="search" name="search" placeholder="Search here.." aria-label="Search"
+                    class="form-control me-2">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
             <h4>Data Category</h4>
+            <div></div>
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
                 data-bs-target="#addCategory">Add Data</button>
         </div>
@@ -84,52 +89,58 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($categories as $category)
-                    <tr class="text-center">
-                        <th scope="row">{{ $loop->iteration }}</th>
-                        <td>{{ $category->name }}</td>
-                        <td>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#editCategory-{{ $category->id }}">Edit</button>
-                                <form action="{{ route('category.delete', $category->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-dark">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <div class="modal fade" id="editCategory-{{ $category->id }}" tabindex="-1"
-                        aria-labelledby="editCategoryLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="editCategoryLabel">Edit Data</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                @if (count($results) > 0)
+                    @foreach ($results as $result)
+                        <tr class="text-center">
+                            <th scope="row">{{ $loop->iteration }}</th>
+                            <td>{{ $result->name }}</td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                        data-bs-target="#editCategory-{{ $result->id }}">Edit</button>
+                                    <form action="{{ route('category.delete', $result->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-dark">Delete</button>
+                                    </form>
                                 </div>
-                                <form action="{{ route('category.edit', $category->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="modal-body mx-1">
-                                        <div>
-                                            <label for="nameInput" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="nameInput" name="name"
-                                                value="{{ $category->name }}">
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="editCategory-{{ $result->id }}" tabindex="-1"
+                            aria-labelledby="editCategoryLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editCategoryLabel">Edit Data</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ route('category.edit', $result->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="modal-body mx-1">
+                                            <div>
+                                                <label for="nameInput" class="form-label">Name</label>
+                                                <input type="text" class="form-control" id="nameInput"
+                                                    name="name" value="{{ $result->name }}">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-outline-secondary"
-                                            data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-outline-primary">Submit</button>
-                                    </div>
-                                </form>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-outline-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @else
+                    <th></th>
+                    <td>No data found...</td>
+                    <td></td>
+                @endif
             </tbody>
         </table>
     </div>
